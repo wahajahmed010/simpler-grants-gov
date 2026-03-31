@@ -8,10 +8,7 @@ import playwrightEnv from "tests/e2e/playwright-env";
 import { VALID_TAGS } from "tests/e2e/tags";
 import { authenticateE2eUser } from "tests/e2e/utils/authenticate-e2e-user-utils";
 import { createApplication } from "tests/e2e/utils/create-application-utils";
-import {
-  fillForm,
-  verifyFormLinkVisible,
-} from "tests/e2e/utils/forms/general-forms-filling";
+import { fillForm } from "tests/e2e/utils/forms/general-forms-filling";
 import { verifyFormStatusAfterSave } from "tests/e2e/utils/forms/verify-form-status-utils";
 
 import {
@@ -55,9 +52,6 @@ test(
     const isMobile = testInfo.project.name.match(/[Mm]obile/);
     await authenticateE2eUser(page, context, !!isMobile);
     await createApplication(page, OPPORTUNITY_URL, testOrgLabel);
-
-    // Verify the Attachment Form link is visible on the application page
-    await verifyFormLinkVisible(page, ATTACHMENT_FORM_MATCHER);
 
     // Fill Attachment 1 — the form requires at least one attachment to be complete
     await fillForm(

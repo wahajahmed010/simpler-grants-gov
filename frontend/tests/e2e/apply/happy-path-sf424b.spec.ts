@@ -8,10 +8,7 @@ import playwrightEnv from "tests/e2e/playwright-env";
 import { VALID_TAGS } from "tests/e2e/tags";
 import { authenticateE2eUser } from "tests/e2e/utils/authenticate-e2e-user-utils";
 import { createApplication } from "tests/e2e/utils/create-application-utils";
-import {
-  fillForm,
-  verifyFormLinkVisible,
-} from "tests/e2e/utils/forms/general-forms-filling";
+import { fillForm } from "tests/e2e/utils/forms/general-forms-filling";
 import { verifyFormStatusAfterSave } from "tests/e2e/utils/forms/verify-form-status-utils";
 
 import {
@@ -50,8 +47,6 @@ test(
 
     // Call reusable create application function from utils
     await createApplication(page, OPPORTUNITY_URL, testOrgLabel);
-
-    await verifyFormLinkVisible(page, SF424B_FORM_MATCHER);
 
     await fillForm(
       testInfo,

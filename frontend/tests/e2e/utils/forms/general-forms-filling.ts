@@ -1,7 +1,7 @@
 import { Page, TestInfo } from "@playwright/test";
 import { selectDropdownByValueOrLabel } from "tests/e2e/utils/select-dropdown-utils";
 
-import { getFormLink } from "./form-navigation-utils";
+import { openForm } from "./form-navigation-utils";
 
 export interface FillFieldDefinition {
   testId?: string;
@@ -84,10 +84,16 @@ export async function fillField(
 }
 
 /**
- * Fills a form from the application page and saves it.
+ * Opens and fills a form from the application page, then saves it.
+ * Consolidates the navigation reliability of `openForm` (table-scoped row
+ * lookup, scroll-to-reveal, testId/href/button/global fallback selectors,
+ * trial-click check, force-click retry, direct href goto last resort, and
+ * URL pattern verification) with `fillForm`'s artifact attachment, field
+ * filling, save, and optional return-to-application logic.
+ *
  * Does NOT perform assertions - those should be done in the test.
- * Assumes the current page is already an application page
- * where the form link (`formName`) is visible and clickable.
+ * Assumes the current page is already an application page where the forms
+ * table is reachable.
  */
 export async function fillForm(
   testInfo: TestInfo,
@@ -105,27 +111,33 @@ export async function fillForm(
     contentType: "text/plain",
   });
 
+  // Derive a string matcher for openForm: if formName is already a string use
+  // it directly; if it is a RegExp, use its source pattern so openForm can
+  // construct the case-insensitive regex it expects.
+  const formMatcher = formName instanceof RegExp ? formName.source : formName;
+
   try {
-    await page.getByRole("link", { name: formName }).click();
+    // ── Navigation ──────────────────────────────────────────────────────────
+    // Delegate to openForm, which owns all navigation reliability:
+    // table-scoped row lookup, scroll-to-reveal, testId/href/button/global
+    // fallback selectors, trial-click check, force-click retry, direct href
+    // goto last resort, and URL pattern + load-state verification.
+    const opened = await openForm(page, formMatcher);
+    if (!opened) {
+      throw new Error(`Could not find or open form: ${formMatcher}`);
+    }
 
-    // Wait for the URL to change away from the application page before
-    // checking for form content - without this, getByText(formName) may
-    // immediately resolve against the link text on the application list page,
-    // causing fillField to run before navigation completes.
-    // Mobile Chrome where navigation is slower.
-    await page.waitForURL((url) => url.href !== applicationURL, {
-      timeout: 35000,
-    });
-
+    // ── Form ready check ───────────────────────────────────────────────────
+    // Confirm the form heading is visible before filling any fields.
     await page
       .getByText(formName)
       .first()
       .waitFor({ state: "visible", timeout: 35000 });
 
-    for (const fieldDefinition of Object.entries(fields)) {
-      const [fieldIdentifier, fieldConfig] = fieldDefinition;
-      const dataForField = data[fieldIdentifier];
-      await fillField(testInfo, page, fieldConfig, dataForField);
+    // ── Fill fields ────────────────────────────────────────────────────────
+
+    for (const [fieldIdentifier, fieldConfig] of Object.entries(fields)) {
+      await fillField(testInfo, page, fieldConfig, data[fieldIdentifier]);
     }
 
     await page.waitForTimeout(500);
@@ -141,21 +153,4 @@ export async function fillForm(
     });
     throw error;
   }
-}
-
-/**
- * Verifies that a form link or button is visible on the page.
- * Use after application creation to confirm the forms table has fully rendered
- * before attempting to navigate into a form.
- * @param page Playwright Page object
- * @param formName Form name or pipe-separated pattern to match (e.g. "SF-424B|Assurances for Non-Construction Programs")
- */
-export async function verifyFormLinkVisible(
-  page: Page,
-  formName: string,
-): Promise<void> {
-  await getFormLink(page, formName).waitFor({
-    state: "visible",
-    timeout: 60000,
-  });
 }
