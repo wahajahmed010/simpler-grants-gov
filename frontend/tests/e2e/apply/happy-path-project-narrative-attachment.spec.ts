@@ -11,10 +11,7 @@ import { createApplication } from "tests/e2e/utils/create-application-utils";
 import { fillForm } from "tests/e2e/utils/forms/general-forms-filling";
 import { verifyFormStatusAfterSave } from "tests/e2e/utils/forms/verify-form-status-utils";
 
-import {
-  PROJECT_NARRATIVE_ATTACHMENT_FORM_CONFIG,
-  PROJECT_NARRATIVE_ATTACHMENT_FORM_MATCHER,
-} from "./fixtures/project-narrative-attachment-field-definitions";
+import { PROJECT_NARRATIVE_ATTACHMENT_FORM_CONFIG } from "./fixtures/project-narrative-attachment-field-definitions";
 import { projectNarrativeAttachmentHappyPathTestData } from "./fixtures/project-narrative-attachment-fill-data";
 
 const { APPLY, CORE_REGRESSION } = VALID_TAGS;

@@ -11,10 +11,7 @@ import { createApplication } from "tests/e2e/utils/create-application-utils";
 import { fillForm } from "tests/e2e/utils/forms/general-forms-filling";
 import { verifyFormStatusAfterSave } from "tests/e2e/utils/forms/verify-form-status-utils";
 
-import {
-  OTHER_NARRATIVE_ATTACHMENT_FORM_CONFIG,
-  OTHER_NARRATIVE_ATTACHMENT_FORM_MATCHER,
-} from "./fixtures/other-narrative-attachment-field-definitions";
+import { OTHER_NARRATIVE_ATTACHMENT_FORM_CONFIG } from "./fixtures/other-narrative-attachment-field-definitions";
 import { otherNarrativeAttachmentHappyPathTestData } from "./fixtures/other-narrative-attachment-fill-data";
 
 const { APPLY, CORE_REGRESSION } = VALID_TAGS;
